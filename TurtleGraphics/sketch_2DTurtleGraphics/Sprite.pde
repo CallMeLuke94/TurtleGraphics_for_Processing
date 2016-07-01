@@ -1,6 +1,6 @@
 //Draw a turtle here!
 
-void logo(float scl) {
+void sprite(float scl) {
   scale(scl);
   strokeWeight(1);
   stroke(0);
