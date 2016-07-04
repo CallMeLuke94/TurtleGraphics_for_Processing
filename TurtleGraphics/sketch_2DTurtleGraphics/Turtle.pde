@@ -1,9 +1,9 @@
+//Turtle Class
+
 class Turtle {
-  float size;
   float x;
   float y;
-  boolean logo;
-  boolean tail;
+  boolean tail = true;
   color tailColor = color(255, 0, 0);
   float currentThickness = 1;
   PVector pos;
@@ -13,32 +13,16 @@ class Turtle {
   ArrayList<Integer> pushes = new ArrayList<Integer>();
   int track = 0;
 
-  Turtle (float size_, float x_, float y_, PVector dir_, boolean logo_, boolean tail_) {
-    size = size_;
+  Turtle (float x_, float y_, float dir_) {
     x = x_;
     y = y_;
-    dir = dir_;
-    logo = logo_;
-    tail = tail_;
+    dir = PVector.fromAngle(radians(-dir_));
     pos = new PVector(x, y);
     positions.add(pos.copy());
     directions.add(dir.copy());
-    if (!logo && !tail){
-      println("You've set the turtle and the tail to false, you won't see anything!!");
-    }
   }
 
-  void display() {
-    if (tail) {
-      tail();
-    }
-    if (logo) {
-      logo();
-    } else {
-    }
-  }
-
-  void logo() {
+  void logo(float size) {
     pushMatrix();
     translate(pos.x, pos.y);
     rotate(dir.heading()+PI/2);
@@ -55,17 +39,16 @@ class Turtle {
     strokeJoin(ROUND);
     stroke(tailColor);
 
-    //beginShape();  //shape version
-    //for (PVector vect : positions) {
-    //  vertex(vect.x, vect.y);
-    //}
-    //endShape();
+    float prevX = positions.get(positions.size()-2).x;
+    float prevY = positions.get(positions.size()-2).y;
+    float currX = positions.get(positions.size()-1).x;
+    float currY = positions.get(positions.size()-1).y;
 
-    //for (int i = 1; i < positions.size(); i++) { //lines version
-    //  line(positions.get(i-1).x, positions.get(i-1).y, positions.get(i).x, positions.get(i).y);
-    //}
-    
-    line(positions.get(positions.size()-2).x, positions.get(positions.size()-2).y, positions.get(positions.size()-1).x, positions.get(positions.size()-1).y);  
+    line(prevX, prevY, currX, currY);
+  }
+
+  void noTail() {
+    tail = false;
   }
 
   void fwd(float l) {
@@ -73,8 +56,10 @@ class Turtle {
     pos.add(dir.copy().mult(l));
     positions.add(pos.copy());
     directions.add(dir.copy());
-    
-    tail();
+
+    if (tail) {
+      tail();
+    }
   }
 
   void trn(float angle) {
@@ -82,8 +67,10 @@ class Turtle {
     dir.normalize();
     positions.add(pos.copy());
     directions.add(dir.copy());
-    
-    tail();
+
+    if (tail) {
+      tail();
+    }
   }
 
   void push() {
@@ -97,14 +84,14 @@ class Turtle {
     PVector popD = directions.get(saved-1);
     setPos(popP.x, popP.y);
     setDir(popD);
-    
+
     int countdown = 0;
     while (countdown < saved-track) {
       positions.remove(positions.size()-1);
       directions.remove(positions.size()-1);
       countdown++;
     }
-    
+
     pushes.remove(pushes.size()-1);
     track++;
   }
@@ -117,7 +104,7 @@ class Turtle {
     positions.add(pos.copy());
     directions.add(dir.copy());
   }
-  
+
   void randomise() {
     pos = new PVector(random(width), random(height));
     dir = PVector.random2D();
@@ -137,8 +124,15 @@ class Turtle {
     directions.add(dir.copy());
   }
 
-  void setSize(float newSize) {
-    size = newSize;
+  void setAngle(float angle) {
+    dir = PVector.fromAngle(radians(angle-90));
+    directions.add(dir.copy());
+  }
+
+  void trnTo(float x, float y) {
+    PVector target = new PVector(x, y);
+    PVector newDir = PVector.sub(target, pos);
+    setDir(newDir);
   }
 
   void setColour(int r, int g, int b) {
